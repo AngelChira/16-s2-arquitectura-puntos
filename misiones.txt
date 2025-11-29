@@ -1,0 +1,7 @@
+MISION 1:
+1. 
+2. 
+ALTER TABLE bloqueos 
+ADD CONSTRAINT uk_tutor_fecha_inicio 
+UNIQUE (idTutor, fechaInicio);
+

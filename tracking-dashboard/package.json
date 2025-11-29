@@ -1,0 +1,19 @@
+{
+  "name": "tracking-dashboard",
+  "version": "1.0.0",
+  "description": "Dashboard de trazabilidad en vivo para la saga de tutorías.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
+  "dependencies": {
+    "amqplib": "^0.10.9",
+    "dotenv": "^17.2.3",
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.3"
+  }
+}

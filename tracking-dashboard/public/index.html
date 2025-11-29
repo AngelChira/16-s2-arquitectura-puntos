@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard de Trazabilidad en Vivo</title>
+    <style>
+        :root {
+            --bg-color: #1e1e1e;
+            --text-color: #d4d4d4;
+            --border-color: #333;
+            --header-color: #4ec9b0;
+            --cid-colors: #ff6347, #ffd700, #9acd32, #6495ed, #ee82ee, #ff7f50;
+        }
+        body { font-family: monospace; margin: 0; padding: 1rem; background-color: var(--bg-color); color: var(--text-color); }
+        header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--header-color); padding-bottom: 10px; margin-bottom: 20px; }
+        h1 { color: var(--header-color); margin: 0; }
+        button { background: #444; color: var(--text-color); border: 1px solid #666; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #555; }
+        .lanes-container { display: flex; gap: 10px; align-items: flex-start; }
+        .service-lane { flex: 1; background: #252526; border-radius: 8px; padding: 10px; min-height: 80vh; }
+        .service-lane h3 { text-align: center; margin-top: 0; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); }
+        .event-bubble { background: #2d2d2d; padding: 10px; border-radius: 5px; margin-bottom: 10px; border-left: 5px solid; transition: transform 0.2s ease-in-out; }
+        .event-bubble:hover { transform: scale(1.02); }
+        .event-step { font-size: 1.2em; font-weight: bold; color: var(--header-color); margin-right: 10px; }
+        .event-message { display: block; }
+        .event-cid { font-size: 0.8em; color: #888; margin-top: 5px; display: block; }
+        .error { background-color: rgba(244, 71, 71, 0.2); border-left-color: #f44747 !important; color: #f44747; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>[ Trazabilidad de la Saga en Vivo ]</h1>
+        <button id="clear-btn">Limpiar Todo</button>
+    </header>
+
+    <div class="lanes-container">
+        <div class="service-lane" id="lane-MS_Usuarios"><h3>MS_Usuarios</h3></div>
+        <div class="service-lane" id="lane-MS_Agenda"><h3>MS_Agenda</h3></div>
+        <div class="service-lane" id="lane-MS_Tutorias"><h3>MS_Tutorias</h3></div>
+        <div class="service-lane" id="lane-MS_Notificaciones"><h3>MS_Notificaciones</h3></div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const lanes = {
+            MS_Usuarios: document.getElementById('lane-MS_Usuarios'),
+            MS_Agenda: document.getElementById('lane-MS_Agenda'),
+            MS_Tutorias: document.getElementById('lane-MS_Tutorias'),
+            MS_Notificaciones: document.getElementById('lane-MS_Notificaciones'),
+        };
+
+        let stepCounter = 1;
+        const transactionColors = new Map();
+        const colorPalette = ['#ff6347', '#ffd700', '#9acd32', '#6495ed', '#ee82ee', '#ff7f50'];
+        let nextColorIndex = 0;
+
+        function getTransactionColor(cid) {
+            if (!transactionColors.has(cid)) {
+                transactionColors.set(cid, colorPalette[nextColorIndex % colorPalette.length]);
+                nextColorIndex++;
+            }
+            return transactionColors.get(cid);
+        }
+
+        socket.on('tracking_event', (evento) => {
+            const lane = lanes[evento.service];
+            if (!lane) {
+                console.warn('Carril no encontrado para el servicio:', evento.service);
+                return;
+            }
+
+            const bubble = document.createElement('div');
+            bubble.className = 'event-bubble';
+            if (evento.status === 'ERROR') {
+                bubble.classList.add('error');
+            }
+
+            const color = getTransactionColor(evento.cid);
+            bubble.style.borderColor = color;
+
+            bubble.innerHTML = `
+                <div>
+                    <span class="event-step">#${stepCounter}</span>
+                    <span class="event-message">${evento.message}</span>
+                </div>
+                <span class="event-cid">CID: ${evento.cid.substring(0, 13)}...</span>
+            `;
+
+            lane.appendChild(bubble);
+            stepCounter++;
+        });
+
+        document.getElementById('clear-btn').addEventListener('click', () => {
+            Object.values(lanes).forEach(lane => {
+                // Dejar solo el H3
+                const header = lane.querySelector('h3');
+                lane.innerHTML = '';
+                lane.appendChild(header);
+            });
+            stepCounter = 1;
+            transactionColors.clear();
+            nextColorIndex = 0;
+        });
+    </script>
+</body>
+</html>
