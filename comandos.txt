@@ -1,0 +1,66 @@
+## 1:
+docker-compose down -v
+
+ELIMINA LOS VOLUMNES Y IMAGENES QUE TENGAS
+PARA ESTAR MAS SEGUROS DE QUE FUNCIONARA
+
+## 2:
+docker-compose up -d --build
+
+
+## 3: ESPERA 10 SEGUNDOS Y EJECUTAR EL SIGUIENTE COMANDO
+EN GIT BASH
+
+
+## PUERTOS
+Trazabilidad de la Saga en Vivo:
+http://localhost:9000/
+
+GRAFANA
+http://localhost:3005/login
+admin
+147258369
+
+Prometheus
+http://localhost:9090/
+
+
+
+--- REINICIAR MICROSERVICIO MS-USUARIOS 
+--- PORQUE LA BASE DE DATOS AUN NO ESTABA LISTA
+docker-compose restart ms-usuarios
+
+--- cambie en service y repository para aplicar los cambios 
+--- usar el siguiente comando
+docker-compose restart ms-agenda
+
+
+
+
+
+
+--------------------------------
+Solución Definitiva (Hard Reset)
+Vamos a forzar a Docker a reconstruir la red y reconectar los cables. Sigue estos pasos en tu terminal (en la raíz del proyecto):
+
+1. Apaga todo y borra redes huérfanas:
+
+Bash
+
+docker-compose down --remove-orphans
+
+2. Limpia caché de construcción (opcional pero recomendado):
+
+Bash
+
+docker system prune -f
+
+3. Vuelve a levantar todo (forzando build):
+
+Bash
+
+docker-compose up --build
+
+4. Espera 30 segundos hasta que veas en los logs que todos los servicios dicen "Listening on port...".
+
+5. Prueba de nuevo: Recarga http://localhost:8080 y dale al botón. Debería funcionar.
