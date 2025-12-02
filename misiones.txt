@@ -5,3 +5,31 @@ ALTER TABLE bloqueos
 ADD CONSTRAINT uk_tutor_fecha_inicio 
 UNIQUE (idTutor, fechaInicio);
 
+Paso 1: Asegurar que el Caos (Latencia) esté ACTIVO
+Debemos ejecutar los comandos de Toxiproxy de nuevo en secuencia. Utiliza Git Bash para esto:
+
+1. Eliminar cualquier residuo de Toxiproxy: (Esto asegura que no haya toxics viejos o proxies duplicados).
+Bash
+
+curl -X DELETE http://localhost:8474/proxies/proxy_ms_usuarios
+
+2. Crear el Proxy de Red: (Si no existe, lo crea; si existe, da 409, que es seguro).
+Bash
+
+curl -X POST http://localhost:8474/proxies \
+-H "Content-Type: application/json" \
+-d'{
+"name": "proxy_ms_usuarios",
+"listen": "0.0.0.0:8001",
+"upstream": "ms-usuarios:3001"
+}'
+
+
+3. Inyectar Latencia (5 segundos):
+Bash
+
+curl -X POST http://localhost:8474/proxies/proxy_ms_usuarios/toxics \
+-H "Content-Type: application/json" \
+-d '{"type": "latency", "attributes": {"latency": 5000}}'
+
+
