@@ -1,0 +1,65 @@
+En ms-notificaciones/src/infrastructure/messaging/message.producer.js
+// CORREGIR: Nombre de la función para que coincida con el import
+const track = (cid, message, status = 'INFO') => {
+    publishTrackingEvent({
+        service: 'MS_Notificaciones', // <-- ¡Importante! Cambiar Agenda por Notificaciones
+        message,
+        cid,
+        timestamp: new Date(),
+        status
+    });
+};
+
+module.exports = {
+    connect,
+    track // <-- Ahora sí coincide con el require
+};
+
+
+Minikube
+kubernes con grafana para simular si se callo del microservicio
+aplicar coreografia
+pruebas -> darle de baja a ciertos servicios y Minikube debe resolver , si no hay service meessages integralo 
+Prometheus y grafana observen y que Minikube tome una estrategia de resilencia. si la cola de mensajes si cae igual resolver el error
+integracion con los servicios que rabbitq
+kong revisar y arreglar la confugiración que se tiene 
+
+kubernes
+Minikube
+grafana
+residencia
+service meessages
+
+PRUEBA simule masiva de datos, grafana y prometheus verifique se que se estan ingresando datos
+que se bajen los microservicios y kubernes debe recuperarlos 
+
+// ms-agenda/src/infrastructure/repositories/agenda.repository.js por si falla arreglar la query
+
+
+docker compose up -d rabbitmq
+
+docker compose up -d db-usuarios
+
+docker compose up -d db-agenda
+
+docker compose up -d db-tutorias
+
+docker compose up -d ms-auth
+
+docker compose up -d ms-usuarios
+
+docker compose up -d ms-agenda
+
+docker compose up -d ms-notificaciones
+
+docker compose up -d prometheus
+
+docker compose up -d tracking-dashboard
+
+docker compose up -d grafana
+
+docker compose up -d toxiproxy
+
+docker compose up -d ms-tutorias
+
+docker compose up -d client-sim
