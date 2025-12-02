@@ -1,11 +1,11 @@
 global:
-  scrape_interval: 15s # By default, scrape targets every 15 seconds.
+  scrape_interval: 15s # Por defecto, recopila (hace scrape a) los objetivos cada 15 segundos.
 
 scrape_configs:
-  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  # El nombre del trabajo se añade como una etiqueta `job=<job_name>` a cualquier serie temporal recopilada desde esta configuración.
   - job_name: "prometheus"
 
-    # Override the global default and scrape targets from this job every 5 seconds.
+    # Sobrescribe el valor predeterminado global y recopila objetivos de este trabajo cada 5 segundos.
     scrape_interval: 5s
 
     static_configs:
