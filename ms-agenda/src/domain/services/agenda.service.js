@@ -1,13 +1,25 @@
 // ms-agenda/src/domain/services/agenda.service.js
 const agendaRepository = require("../../infrastructure/repositories/agenda.repository");
 
-// La función 'verificarDisponibilidad' no cambia y se queda como está.
 const verificarDisponibilidad = async (idTutor, fechaHoraSolicitada) => {
   const fechaSolicitada = new Date(fechaHoraSolicitada);
   const bloqueosDelTutor = await agendaRepository.findBloqueosByTutor(idTutor);
 
   const hayConflicto = bloqueosDelTutor.some((bloqueo) => {
-    const inicioBloqueo = bloqueo.fechaInicio;
+    // CRÍTICO: Usamos 'fechainicio' en minúsculas por convención PG y lo validamos
+    const inicioBloqueo = bloqueo.fechainicio;
+
+    // --- FIX DE ROBUSTEZ ---
+    // 1. Verificar si la propiedad existe (no es null)
+    // 2. Verificar si es realmente un objeto Date (tiene el método getTime)
+    if (!inicioBloqueo || typeof inicioBloqueo.getTime !== "function") {
+      console.warn(
+        "ADVERTENCIA: Bloqueo encontrado con dato de fecha inválido. Ignorando."
+      );
+      return false; // No hay conflicto si el dato es inválido
+    }
+    // --- FIN DEL FIX ---
+
     const finBloqueo = new Date(
       inicioBloqueo.getTime() + bloqueo.duracionMinutos * 60000
     );
